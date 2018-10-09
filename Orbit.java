@@ -24,13 +24,14 @@ public class Orbit
 		v.getAutoPilot().engage();
 		v.getAutoPilot().setTargetHeading(90);
 		v.getAutoPilot().setTargetPitch(90);
-		if (v.getAutoPilot().getTargetRoll() < 45)
+		v.getAutoPilot().setTargetRoll(Math.round((float)v.getAutoPilot().getTargetRoll() / 90) * 90);
+		/* if (v.getAutoPilot().getTargetRoll() < 45)
 		{
 			v.getAutoPilot().setTargetRoll(0);
 		} else
 		{
 			v.getAutoPilot().setTargetRoll(90);
-		}
+		} */
 		v.getControl().setThrottle(1);
 		v.getControl().activateNextStage();
 		Stream<Triplet<Double, Double, Double>> speed = connection.addStream(v, "velocity", v.getOrbit().getBody().getReferenceFrame());
@@ -131,8 +132,9 @@ public class Orbit
 		}
 		v.getAutoPilot().disengage();
 		v.getControl().setSAS(true);
-		Thread.sleep(1000);
+		Thread.sleep(100);
 		v.getControl().setSASMode(SpaceCenter.SASMode.PROGRADE);
+		ksc.setPhysicsWarpFactor(3);
 		
 		boolean fairings = false;
 		List<Fairing> fairingList = null;
@@ -142,6 +144,7 @@ public class Orbit
 			fairingList = v.getParts().getFairings();
 			System.out.println(fairingList.size());
 		}
+		Thread.sleep(100);
 		while (getMagnitude(alt.get()) < 670000)
 		{
 			// wait until over karman line
@@ -172,6 +175,7 @@ public class Orbit
 		{
 			
 		}
+		ksc.setPhysicsWarpFactor(0);
 		v.getControl().setThrottle(1);
 		Stream<Triplet<Double,Double,Double>> remainingBurn = connection.addStream(node, "remainingBurnVector", node.getOrbitalReferenceFrame());
 		Stream<Float> throttle = connection.addStream(v.getControl(), "getThrottle");
